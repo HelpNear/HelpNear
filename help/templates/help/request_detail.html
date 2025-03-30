@@ -1,0 +1,11 @@
+{% extends 'base.html' %} {% block content %}
+<h2>{{ help_request.title }}</h2>
+<p>{{ help_request.description }}</p>
+<p><strong>Location:</strong> {{ help_request.location }}</p>
+
+<h4>Respond to Help</h4>
+<form method="post">
+  {% csrf_token %} {{ form.as_p }}
+  <button type="submit" class="btn btn-primary">Send Response</button>
+</form>
+{% endblock %}

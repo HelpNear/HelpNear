@@ -1,0 +1,23 @@
+{% extends 'base.html' %} {% block content %}
+<h2>Open Help Requests</h2>
+<form method="get" class="mb-3">
+  <label>Filter by category:</label>
+  <select name="category" onchange="this.form.submit()">
+    <option value="">All</option>
+    <option value="food" {% if selected_category == "food" %}selected{% endif %}>Food</option>
+    <option value="medicine" {% if selected_category == "medicine" %}selected{% endif %}>Medicine</option>
+    <option value="house" {% if selected_category == "house" %}selected{% endif %}>House Help</option>
+    <option value="other" {% if selected_category == "other" %}selected{% endif %}>Other</option>
+  </select>
+</form>
+<ul class="list-group">
+  {% for req in help_requests %}
+  <li class="list-group-item">
+<strong>{{ req.title }}</strong> — {{ req.get_category_display }} <br />
+    <a href="{% url 'request_detail' req.id %}">View / Help</a>
+  </li>
+  {% empty %}
+  <li class="list-group-item">No requests yet.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
