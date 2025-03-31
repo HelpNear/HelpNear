@@ -1,26 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
-  <h2 class="mb-4">My Help Requests</h2>
-
-  {% if help_requests %}
-    <div class="list-group">
-      {% for req in help_requests %}
-        <div class="list-group-item">
-          <h5 class="mb-1">{{ req.title }}</h5>
-          <p class="mb-1">
-            <strong>Category:</strong> {{ req.get_category_display }} <br>
-            <strong>Status:</strong>
-            {% if req.is_open %}
-              <span class="badge bg-success">Open</span>
-            {% else %}
-              <span class="badge bg-danger">Closed</span>
-            {% endif %}
-          </p>
-          <a href="{% url 'request_detail' req.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+<div class="bg-white p-4 rounded shadow-sm">
+  <h2 class="mb-4 text-primary">My Help Requests</h2>
+  <ul class="list-group">
+    {% for req in help_requests %}
+    <li class="list-group-item">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>{{ req.title }}</strong> — {{ req.get_category_display }} —
+          {% if req.is_open %}<span class="badge bg-success">Open</span>{% else %}<span class="badge bg-danger">Closed</span>{% endif %}
         </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <div class="alert alert-info">You haven't created any requests yet.</div>
-  {% endif %}
+        <a href="{% url 'request_detail' req.id %}" class="btn btn-outline-secondary btn-sm">View</a>
+      </div>
+    </li>
+    {% empty %}
+    <li class="list-group-item text-center">You haven't created any requests yet.</li>
+    {% endfor %}
+  </ul>
+</div>
 {% endblock %}

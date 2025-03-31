@@ -1,7 +1,27 @@
-{% extends 'base.html' %} {% block content %}
-<h2>Register</h2>
-<form method="post">
-  {% csrf_token %} {{ form.as_p }}
-  <button class="btn btn-success" type="submit">Sign up</button>
-</form>
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-sm p-4">
+      <h2 class="text-center text-success mb-4">Register</h2>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          {{ form.username.label_tag }}
+          {{ form.username|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+          {{ form.password1.label_tag }}
+          {{ form.password1|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+          {{ form.password2.label_tag }}
+          {{ form.password2|add_class:"form-control" }}
+        </div>
+        <button type="submit" class="btn btn-success">Register</button>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}

@@ -1,7 +1,40 @@
-{% extends 'base.html' %} {% block content %}
-<h2>Create Help Request</h2>
-<form method="post">
-  {% csrf_token %} {{ form.as_p }}
-  <button type="submit" class="btn btn-success">Submit</button>
-</form>
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-sm p-4">
+      <h2 class="text-center text-primary mb-4">Create New Help Request</h2>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          {{ form.title.label_tag }} 
+          {{ form.title|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+          {{ form.description.label_tag }} 
+          {{ form.description|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+          {{ form.category.label_tag }} 
+          {{ form.category|add_class:"form-select" }}
+        </div>
+        <div class="mb-3">
+          {{ form.location.label_tag }} 
+          {{ form.location|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+          {{ form.email.label_tag }} 
+          {{ form.email|add_class:"form-control" }}
+        </div>
+        <div class="mb-3">
+          {{ form.phone.label_tag }} 
+          {{ form.phone|add_class:"form-control" }}
+        </div>
+        <button type="submit" class="btn btn-success w-100">Submit Request</button>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}
