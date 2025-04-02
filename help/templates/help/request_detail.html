@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
+{% load widget_tweaks %}
+
 <div class="bg-white p-4 rounded shadow-sm">
   <h2 class="mb-4 text-primary">{{ help_request.title }}</h2>
   <p><strong>Category:</strong> {{ help_request.get_category_display }}</p>
@@ -15,11 +17,29 @@
   </p>
   <p><strong>Posted by:</strong> {{ help_request.user.username }}</p>
   <hr />
+
   {% if user.is_authenticated and help_request.is_open and help_request.user != user %}
-    <form method="post">
+    <form method="post" class="mb-3">
       {% csrf_token %}
+      <div class="mb-3">
+        {{ form.message.label_tag }}
+        {{ form.message|add_class:"form-control" }}
+      </div>
       <button type="submit" class="btn btn-primary">Offer Help</button>
     </form>
+  {% endif %}
+
+  {% if help_request.responses.exists %}
+    <h5 class="mt-4">Responses:</h5>
+    <ul class="list-group">
+      {% for response in help_request.responses.all %}
+        <li class="list-group-item">
+          <p class="mb-1"><strong>{{ response.responder.username }}</strong>:</p>
+          <p class="mb-0">{{ response.message }}</p>
+          <small class="text-muted">{{ response.created_at }}</small>
+        </li>
+      {% endfor %}
+    </ul>
   {% endif %}
 </div>
 {% endblock %}
