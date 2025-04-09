@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class HelpRequestForm(forms.ModelForm):
     class Meta:
         model = HelpRequest
-        fields = ['title', 'description', 'category', 'location', 'email', 'phone']
+        fields = ['title', 'description', 'category', 'city', 'location', 'email', 'phone']
 
 class HelpResponseForm(forms.ModelForm):
     class Meta:

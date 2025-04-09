@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from location_field.models.plain import PlainLocationField
 
 class HelpRequest(models.Model):
     CATEGORY_CHOICES = [
@@ -13,9 +14,14 @@ class HelpRequest(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
-    location = models.CharField(max_length=200)
-    email = models.EmailField(blank=True, null=True)   
-    phone = models.CharField(max_length=20, blank=True, null=True)  
+    
+    email = models.EmailField(blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+
+    # ЛОКАЦИЯ
+    city = models.CharField(max_length=100, blank=True, null=True)
+    location = PlainLocationField(based_fields=['city'], zoom=7)
+
     is_open = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

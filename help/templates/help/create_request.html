@@ -8,6 +8,7 @@
       <h2 class="text-center text-primary mb-4">Create New Help Request</h2>
       <form method="post">
         {% csrf_token %}
+        {{ form.media }}
         <div class="mb-3">
           {{ form.title.label_tag }} 
           {{ form.title|add_class:"form-control" }}
@@ -19,6 +20,10 @@
         <div class="mb-3">
           {{ form.category.label_tag }} 
           {{ form.category|add_class:"form-select" }}
+        </div>
+        <div class="mb-3">
+          {{ form.city.label_tag }} 
+          {{ form.city|add_class:"form-control" }}
         </div>
         <div class="mb-3">
           {{ form.location.label_tag }} 

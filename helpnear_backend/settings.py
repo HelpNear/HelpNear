@@ -39,9 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'help',  
     'widget_tweaks',  
+    'location_field.apps.DefaultConfig',
     
 
 ]
+LOCATION_FIELD = {
+    'map.provider': 'openstreetmap',
+    'search.provider': 'nominatim',
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
