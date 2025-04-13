@@ -9,6 +9,8 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('my-requests/', views.my_requests, name='my_requests'),
-
+path('request/<int:request_id>/accept/<int:response_id>/', views.accept_response, name='accept_response'),
+path('rate/<int:response_id>/', views.rate_helper, name='rate_helper'),
+    
 
 ]

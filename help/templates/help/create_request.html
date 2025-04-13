@@ -6,40 +6,77 @@
   <div class="col-md-8 col-lg-6">
     <div class="card shadow-sm p-4">
       <h2 class="text-center text-primary mb-4">Create New Help Request</h2>
-      <form method="post">
+      <form method="post" novalidate>
         {% csrf_token %}
         {{ form.media }}
+
+        {% for field in form %}
+          {% if field.name != 'location' %}
+          <div class="mb-3">
+            {{ field.label_tag }}
+            {{ field|add_class:"form-control" }}
+            {% if field.errors %}
+              <div class="invalid-feedback d-block">
+                {{ field.errors|join:", " }}
+              </div>
+            {% endif %}
+          </div>
+          {% endif %}
+        {% endfor %}
+
         <div class="mb-3">
-          {{ form.title.label_tag }} 
-          {{ form.title|add_class:"form-control" }}
+          <label for="location-input"><strong>Select Location:</strong></label>
+          <input type="text" id="location-input" class="form-control" placeholder="Start typing an address..." required>
+          <small class="form-text text-muted">Start typing and choose a location from suggestions.</small>
+          <input type="hidden" id="id_location" name="location" value="{{ form.location.value|default:'' }}">
+          <div id="map" style="height: 300px;" class="mt-2 border rounded shadow-sm"></div>
         </div>
-        <div class="mb-3">
-          {{ form.description.label_tag }} 
-          {{ form.description|add_class:"form-control" }}
-        </div>
-        <div class="mb-3">
-          {{ form.category.label_tag }} 
-          {{ form.category|add_class:"form-select" }}
-        </div>
-        <div class="mb-3">
-          {{ form.city.label_tag }} 
-          {{ form.city|add_class:"form-control" }}
-        </div>
-        <div class="mb-3">
-          {{ form.location.label_tag }} 
-          {{ form.location|add_class:"form-control" }}
-        </div>
-        <div class="mb-3">
-          {{ form.email.label_tag }} 
-          {{ form.email|add_class:"form-control" }}
-        </div>
-        <div class="mb-3">
-          {{ form.phone.label_tag }} 
-          {{ form.phone|add_class:"form-control" }}
-        </div>
+
         <button type="submit" class="btn btn-success w-100">Submit Request</button>
       </form>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  let map, marker, autocomplete;
+
+  function initMap() {
+    const defaultLatLng = { lat: 48.3794, lng: 31.1656 };  // Default: Ukraine
+    const mapElement = document.getElementById("map");
+    const input = document.getElementById("location-input");
+    const hiddenInput = document.getElementById("id_location");
+
+    map = new google.maps.Map(mapElement, {
+      center: defaultLatLng,
+      zoom: 6,
+    });
+
+    autocomplete = new google.maps.places.Autocomplete(input);
+    autocomplete.bindTo("bounds", map);
+
+    marker = new google.maps.Marker({
+      map: map,
+      anchorPoint: new google.maps.Point(0, -29)
+    });
+
+    autocomplete.addListener("place_changed", () => {
+      marker.setVisible(false);
+      const place = autocomplete.getPlace();
+      if (!place.geometry) return;
+
+      map.setCenter(place.geometry.location);
+      map.setZoom(13);
+      marker.setPosition(place.geometry.location);
+      marker.setVisible(true);
+
+      // Save lat,lng to hidden input
+      hiddenInput.value = place.geometry.location.lat() + ',' + place.geometry.location.lng();
+    });
+  }
+
+  window.initMap = initMap;
+</script>
 {% endblock %}

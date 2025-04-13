@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
-{% block content %}
 
+{% block content %}
 <!-- Hero Section with Project Idea -->
 <div class="p-5 mb-4 bg-primary bg-opacity-10 rounded-3 shadow-sm">
   <div class="container py-3">
@@ -17,33 +17,54 @@
   </div>
 </div>
 
-<!-- Category Filter -->
-<form method="get" class="mb-4">
-  <div class="row g-2">
-    <div class="col-md-4">
-      <select name="category" class="form-select" onchange="this.form.submit()">
-        <option value="">All Categories</option>
-        <option value="food" {% if selected_category == 'food' %}selected{% endif %}>Food</option>
-        <option value="medicine" {% if selected_category == 'medicine' %}selected{% endif %}>Medicine</option>
-        <option value="house" {% if selected_category == 'house' %}selected{% endif %}>House Help</option>
-        <option value="other" {% if selected_category == 'other' %}selected{% endif %}>Other</option>
-      </select>
-    </div>
+<!-- Filter Section -->
+<form method="get" class="row mb-4 g-2">
+  <div class="col-md-6">
+    <input type="text" name="category" class="form-control" placeholder="Search Category" value="{{ category_query }}">
+  </div>
+  <div class="col-md-4">
+    <select name="category" class="form-select" onchange="this.form.submit()">
+      <option value="">All Categories</option>
+      <option value="food" {% if selected_category == 'food' %}selected{% endif %}>Food</option>
+      <option value="medicine" {% if selected_category == 'medicine' %}selected{% endif %}>Medicine</option>
+      <option value="house" {% if selected_category == 'house' %}selected{% endif %}>House Help</option>
+      <option value="other" {% if selected_category == 'other' %}selected{% endif %}>Other</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button class="btn btn-outline-primary w-100" type="submit">Filter</button>
   </div>
 </form>
 
 <!-- Help Requests List -->
-<ul class="list-group">
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
   {% for req in help_requests %}
-  <li class="list-group-item d-flex justify-content-between align-items-center">
-    <div>
-      <strong>{{ req.title }}</strong> — <span class="text-muted">{{ req.get_category_display }}</span>
+  <div class="col">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body">
+        <h5 class="card-title text-primary">{{ req.title }}</h5>
+        <p class="card-text">
+          <strong>Category:</strong> {{ req.get_category_display }}<br>
+          <strong>Status:</strong>
+          {% if req.is_open %}
+            <span class="badge bg-success">Open</span>
+          {% else %}
+            <span class="badge bg-danger">Closed</span>
+          {% endif %}
+        </p>
+      </div>
+      <div class="card-footer bg-transparent border-top-0">
+        <a href="{% url 'request_detail' req.id %}" class="btn btn-outline-primary w-100">
+          View / Help
+        </a>
+      </div>
     </div>
-    <a href="{% url 'request_detail' req.id %}" class="btn btn-sm btn-outline-primary">View / Help</a>
-  </li>
+  </div>
   {% empty %}
-  <li class="list-group-item text-center">No help requests found.</li>
+  <div class="col-12 text-center">
+    <div class="alert alert-info">No help requests found.</div>
+  </div>
   {% endfor %}
-</ul>
+</div>
 
 {% endblock %}

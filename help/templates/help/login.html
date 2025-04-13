@@ -1,25 +1,35 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-6 col-lg-5">
-    <div class="card shadow-sm p-4">
-      <h2 class="text-center text-primary mb-4">Login</h2>
-      <form method="post">
+    <div class="card shadow p-4">
+      <h2 class="text-center text-primary mb-4">Login to HelpNear</h2>
+
+      <form method="post" novalidate>
         {% csrf_token %}
+        
         {% for field in form.visible_fields %}
           <div class="mb-3">
             {{ field.label_tag }}
             {{ field|add_class:"form-control" }}
             {% if field.errors %}
-              <div class="text-danger small">{{ field.errors|striptags }}</div>
+              <div class="invalid-feedback d-block">
+                {{ field.errors|striptags }}
+              </div>
             {% endif %}
           </div>
         {% endfor %}
+
         <div class="d-grid">
-          <button type="submit" class="btn btn-dark">Login</button>
+          <button type="submit" class="btn btn-primary">Log In</button>
         </div>
       </form>
+
+      <div class="text-center mt-3">
+        <small class="text-muted">Don't have an account? <a href="{% url 'register' %}">Register</a></small>
+      </div>
     </div>
   </div>
 </div>

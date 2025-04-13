@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
-{% block content %}
 {% load widget_tweaks %}
 
+{% block content %}
 <div class="bg-white p-4 rounded shadow-sm">
   <h2 class="mb-4 text-primary">{{ help_request.title }}</h2>
+
   <p><strong>Category:</strong> {{ help_request.get_category_display }}</p>
   <p><strong>Description:</strong> {{ help_request.description }}</p>
   <p><strong>Email:</strong> {{ help_request.email }}</p>
@@ -16,19 +17,30 @@
     {% endif %}
   </p>
   <p><strong>Posted by:</strong> {{ help_request.user.username }}</p>
-  <hr />
 
+  <!-- Google Map -->
+  <div id="map" class="my-4 border rounded shadow-sm" style="height: 300px;"></div>
+
+  <!-- Offer Help Form -->
   {% if user.is_authenticated and help_request.is_open and help_request.user != user %}
-    <form method="post" class="mb-3">
+    <form method="post" class="mb-4">
       {% csrf_token %}
       <div class="mb-3">
         {{ form.message.label_tag }}
         {{ form.message|add_class:"form-control" }}
+        {% if form.message.errors %}
+          <div class="text-danger small mt-1">
+            {{ form.message.errors|join:", " }}
+          </div>
+        {% endif %}
       </div>
-      <button type="submit" class="btn btn-primary">Offer Help</button>
+      <div class="d-grid">
+        <button type="submit" class="btn btn-primary">Offer Help</button>
+      </div>
     </form>
   {% endif %}
 
+  <!-- Responses -->
   {% if help_request.responses.exists %}
     <h5 class="mt-4">Responses:</h5>
     <ul class="list-group">
@@ -42,4 +54,28 @@
     </ul>
   {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function initMap() {
+    const location = "{{ help_request.location }}".split(',');
+    const latLng = {
+      lat: parseFloat(location[0]),
+      lng: parseFloat(location[1])
+    };
+
+    const map = new google.maps.Map(document.getElementById("map"), {
+      center: latLng,
+      zoom: 13,
+    });
+
+    new google.maps.Marker({
+      position: latLng,
+      map: map,
+    });
+  }
+
+  window.initMap = initMap;
+</script>
 {% endblock %}
