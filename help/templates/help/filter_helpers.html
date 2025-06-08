@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-4">
+  <h3 class="mb-4">Filter Helpers by Rating</h3>
+  <form method="get" class="row g-3 mb-4">
+    <div class="col-auto">
+      <label for="min_rating" class="form-label">Minimum Rating</label>
+      <input type="number" class="form-control" id="min_rating" name="min_rating" min="1" max="5" value="{{ min_rating }}">
+    </div>
+    <div class="col-auto align-self-end">
+      <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+  </form>
+
+  {% if helpers %}
+    <div class="list-group">
+      {% for helper in helpers %}
+        <a href="{% url 'helper_opinions' helper.id %}" class="list-group-item list-group-item-action">
+          {{ helper.username }} – Rating: {{ helper.average_rating|floatformat:2 }}/5
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No helpers match the selected rating.</p>
+  {% endif %}
+</div>
+{% endblock %}

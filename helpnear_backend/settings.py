@@ -14,7 +14,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 # === Google Maps API Key ===
-GOOGLE_MAPS_API_KEY = 'AIzaSyDFAhF6G5nmTX4zXaOoU4Ko3DwAj03x4iI'
+GOOGLE_MAPS_API_KEY = 'AIzaSyBpytUlV2fynpoZRzz66kL0xRVH9wjSGKA'
 
 # === Installed Apps ===
 INSTALLED_APPS = [

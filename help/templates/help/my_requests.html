@@ -1,31 +1,37 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+
 {% block content %}
-
-<div class="bg-white p-4 rounded shadow-sm">
+<div class="container py-4">
   <h2 class="mb-4 text-primary">My Help Requests</h2>
-
   {% if help_requests %}
-    <ul class="list-group">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
       {% for req in help_requests %}
-        <li class="list-group-item">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h5 class="mb-1">{{ req.title }}</h5>
-              <small class="text-muted">{{ req.get_category_display }}</small>
-              <span class="badge {% if req.is_open %}bg-success{% else %}bg-danger{% endif %} ms-2">
-                {% if req.is_open %}Open{% else %}Closed{% endif %}
-              </span>
-            </div>
-            <a href="{% url 'request_detail' req.id %}" class="btn btn-outline-primary btn-sm">View Details</a>
+      <div class="col">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title text-primary">{{ req.title }}</h5>
+            <p class="card-text">
+              <strong>Category:</strong> {{ req.get_category_display }}<br>
+              <strong>Posted:</strong> {{ req.created_at|date:"M d, Y H:i" }}<br>
+              <strong>Status:</strong>
+              {% if req.is_open %}
+                <span class="badge bg-success">Open</span>
+              {% else %}
+                <span class="badge bg-danger">Closed</span>
+              {% endif %}
+            </p>
           </div>
-        </li>
+          <div class="card-footer bg-white border-top-0 d-flex gap-2">
+            <a href="{% url 'request_detail' req.id %}" class="btn btn-outline-primary w-50">View</a>
+            <a href="{% url 'edit_request' req.id %}" class="btn btn-outline-warning w-50">Edit</a>
+          </div>
+        </div>
+      </div>
       {% endfor %}
-    </ul>
-  {% else %}
-    <div class="alert alert-info text-center mb-0">
-      You haven't created any help requests yet.
     </div>
+  {% else %}
+    <div class="alert alert-info">You haven't created any help requests yet.</div>
   {% endif %}
 </div>
-
 {% endblock %}

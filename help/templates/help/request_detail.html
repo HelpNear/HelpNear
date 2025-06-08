@@ -2,80 +2,122 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="bg-white p-4 rounded shadow-sm">
-  <h2 class="mb-4 text-primary">{{ help_request.title }}</h2>
+<div class="container py-4">
+  <div class="card shadow-sm p-4 mb-4">
+    <h3 class="text-primary">{{ help_request.title }}</h3>
+    <p><strong>Category:</strong> {{ help_request.get_category_display }}</p>
+    <p><strong>Description:</strong> {{ help_request.description }}</p>
+    <p><strong>Email:</strong> {{ help_request.email }}</p>
+    <p><strong>Phone:</strong> {{ help_request.phone }}</p>
+    <p><strong>Status:</strong>
+      {% if help_request.is_open %}
+        <span class="badge bg-success">Open</span>
+      {% else %}
+        <span class="badge bg-secondary">Closed</span>
+      {% endif %}
+    </p>
+    <p><strong>Posted by:</strong> {{ help_request.user.username }}</p>
+    <p><strong>Address:</strong> {{ help_request.address }}</p>
+    <p><strong>Lat:</strong> {{ help_request.latitude }}</p>
+    <p><strong>Lng:</strong> {{ help_request.longitude }}</p>
 
-  <p><strong>Category:</strong> {{ help_request.get_category_display }}</p>
-  <p><strong>Description:</strong> {{ help_request.description }}</p>
-  <p><strong>Email:</strong> {{ help_request.email }}</p>
-  <p><strong>Phone:</strong> {{ help_request.phone }}</p>
-  <p><strong>Status:</strong>
-    {% if help_request.is_open %}
-      <span class="badge bg-success">Open</span>
-    {% else %}
-      <span class="badge bg-danger">Closed</span>
-    {% endif %}
-  </p>
-  <p><strong>Posted by:</strong> {{ help_request.user.username }}</p>
+    <div id="map" style="height: 300px;" class="my-3 border rounded shadow-sm"
+         data-lat="{{ help_request.latitude }}"
+         data-lng="{{ help_request.longitude }}"
+         data-address="{{ help_request.address }}"></div>
+  </div>
 
-  <!-- Google Map -->
-  <div id="map" class="my-4 border rounded shadow-sm" style="height: 300px;"></div>
-
-  <!-- Offer Help Form -->
-  {% if user.is_authenticated and help_request.is_open and help_request.user != user %}
-    <form method="post" class="mb-4">
-      {% csrf_token %}
-      <div class="mb-3">
-        {{ form.message.label_tag }}
-        {{ form.message|add_class:"form-control" }}
-        {% if form.message.errors %}
-          <div class="text-danger small mt-1">
-            {{ form.message.errors|join:", " }}
-          </div>
-        {% endif %}
-      </div>
-      <div class="d-grid">
-        <button type="submit" class="btn btn-primary">Offer Help</button>
-      </div>
-    </form>
+  {% if form %}
+    <div class="card shadow-sm mt-4 p-4">
+      <h4>Offer Help</h4>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          {{ form.message.label_tag }}
+          {{ form.message|add_class:"form-control" }}
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Response</button>
+      </form>
+    </div>
   {% endif %}
 
-  <!-- Responses -->
-  {% if help_request.responses.exists %}
-    <h5 class="mt-4">Responses:</h5>
-    <ul class="list-group">
-      {% for response in help_request.responses.all %}
-        <li class="list-group-item">
-          <p class="mb-1"><strong>{{ response.responder.username }}</strong>:</p>
-          <p class="mb-0">{{ response.message }}</p>
-          <small class="text-muted">{{ response.created_at }}</small>
-        </li>
+  {% if responses %}
+    <div class="card shadow-sm mt-4 p-4">
+      <h4>Responses</h4>
+      {% for response in responses %}
+        <div class="border rounded p-3 mb-3">
+          <p>
+            <strong>{{ response.responder.username }}</strong>
+            (avg. rating:
+            {% if response.responder.average_rating > 0 %}
+              {{ response.responder.average_rating|floatformat:2 }}/5
+            {% else %}
+              No rating
+            {% endif %}
+            )
+          </p>
+          <p>{{ response.message }}</p>
+          <p class="text-muted">Sent at {{ response.created_at|date:"M d, Y, P" }}</p>
+
+          {% if request.user == help_request.user and help_request.is_open and not help_request.accepted_response %}
+            <a href="{% url 'accept_response' help_request.id response.id %}"
+               class="btn btn-sm btn-warning">Accept this helper</a>
+          {% endif %}
+
+          {% if help_request.accepted_response == response %}
+            {% if response.rating %}
+              <p><strong>Rated:</strong> {{ response.rating }}/5</p>
+              {% if response.feedback %}
+                <p><strong>Feedback:</strong> {{ response.feedback }}</p>
+              {% endif %}
+              {% if request.user == help_request.user %}
+                <a href="{% url 'give_opinion' response.responder.id %}"
+                   class="btn btn-sm btn-outline-info mt-2">
+                  Leave Opinion about {{ response.responder.username }}
+                </a>
+              {% endif %}
+            {% elif request.user == help_request.user %}
+              <a href="{% url 'rate_helper' response.id %}" class="btn btn-sm btn-success">Rate helper</a>
+            {% endif %}
+          {% endif %}
+        </div>
       {% endfor %}
-    </ul>
+    </div>
   {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  function initMap() {
-    const location = "{{ help_request.location }}".split(',');
-    const latLng = {
-      lat: parseFloat(location[0]),
-      lng: parseFloat(location[1])
-    };
+  window.initMap = function () {
+    const mapElement = document.getElementById('map');
+    if (!mapElement) return;
 
-    const map = new google.maps.Map(document.getElementById("map"), {
-      center: latLng,
+    const lat = parseFloat(mapElement.dataset.lat);
+    const lng = parseFloat(mapElement.dataset.lng);
+    const address = mapElement.dataset.address;
+
+    const map = new google.maps.Map(mapElement, {
+      center: { lat: lat, lng: lng },
       zoom: 13,
     });
 
-    new google.maps.Marker({
-      position: latLng,
+    const marker = new google.maps.Marker({
+      position: { lat: lat, lng: lng },
       map: map,
+      title: address,
     });
-  }
 
-  window.initMap = initMap;
+    const infowindow = new google.maps.InfoWindow({
+      content: `<strong>${address}</strong>`
+    });
+
+    marker.addListener("click", () => {
+      infowindow.open(map, marker);
+    });
+  };
+</script>
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap">
 </script>
 {% endblock %}

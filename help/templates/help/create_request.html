@@ -6,12 +6,13 @@
   <div class="col-md-8 col-lg-6">
     <div class="card shadow-sm p-4">
       <h2 class="text-center text-primary mb-4">Create New Help Request</h2>
+
       <form method="post" novalidate>
         {% csrf_token %}
         {{ form.media }}
 
         {% for field in form %}
-          {% if field.name != 'location' %}
+          {% if field.name != 'address' and field.name != 'latitude' and field.name != 'longitude' %}
           <div class="mb-3">
             {{ field.label_tag }}
             {{ field|add_class:"form-control" }}
@@ -25,11 +26,12 @@
         {% endfor %}
 
         <div class="mb-3">
-          <label for="location-input"><strong>Select Location:</strong></label>
-          <input type="text" id="location-input" class="form-control" placeholder="Start typing an address..." required>
-          <small class="form-text text-muted">Start typing and choose a location from suggestions.</small>
-          <input type="hidden" id="id_location" name="location" value="{{ form.location.value|default:'' }}">
-          <div id="map" style="height: 300px;" class="mt-2 border rounded shadow-sm"></div>
+          <label for="address-input" class="form-label"><strong>Address:</strong></label>
+          <input type="text" id="address-input" class="form-control" placeholder="Start typing address..." required>
+          <input type="hidden" name="address" id="id_address">
+          <input type="hidden" name="latitude" id="id_latitude">
+          <input type="hidden" name="longitude" id="id_longitude">
+          <div id="map" style="height: 300px;" class="mt-3 border rounded shadow-sm"></div>
         </div>
 
         <button type="submit" class="btn btn-success w-100">Submit Request</button>
@@ -41,42 +43,38 @@
 
 {% block extra_js %}
 <script>
-  let map, marker, autocomplete;
+let map, marker, autocomplete;
 
-  function initMap() {
-    const defaultLatLng = { lat: 48.3794, lng: 31.1656 };  // Default: Ukraine
+function initMap() {
+    const defaultLatLng = { lat: 48.3794, lng: 31.1656 };
     const mapElement = document.getElementById("map");
-    const input = document.getElementById("location-input");
-    const hiddenInput = document.getElementById("id_location");
+    const input = document.getElementById("address-input");
+    const addressField = document.getElementById("id_address");
+    const latField = document.getElementById("id_latitude");
+    const lngField = document.getElementById("id_longitude");
 
-    map = new google.maps.Map(mapElement, {
-      center: defaultLatLng,
-      zoom: 6,
-    });
-
+    map = new google.maps.Map(mapElement, { center: defaultLatLng, zoom: 6 });
     autocomplete = new google.maps.places.Autocomplete(input);
     autocomplete.bindTo("bounds", map);
 
-    marker = new google.maps.Marker({
-      map: map,
-      anchorPoint: new google.maps.Point(0, -29)
-    });
+    marker = new google.maps.Marker({ map: map, anchorPoint: new google.maps.Point(0, -29) });
 
     autocomplete.addListener("place_changed", () => {
-      marker.setVisible(false);
-      const place = autocomplete.getPlace();
-      if (!place.geometry) return;
+        marker.setVisible(false);
+        const place = autocomplete.getPlace();
+        if (!place.geometry) return;
+        map.setCenter(place.geometry.location);
+        map.setZoom(13);
+        marker.setPosition(place.geometry.location);
+        marker.setVisible(true);
 
-      map.setCenter(place.geometry.location);
-      map.setZoom(13);
-      marker.setPosition(place.geometry.location);
-      marker.setVisible(true);
-
-      // Save lat,lng to hidden input
-      hiddenInput.value = place.geometry.location.lat() + ',' + place.geometry.location.lng();
+        addressField.value = place.formatted_address;
+        latField.value = place.geometry.location.lat();
+        lngField.value = place.geometry.location.lng();
     });
-  }
+}
 
-  window.initMap = initMap;
+window.initMap = initMap;
 </script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap&libraries=places"></script>
 {% endblock %}

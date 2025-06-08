@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h3 class="mb-4">Top 10 Helpers</h3>
+
+  {% if helpers %}
+    <ul class="list-group">
+      {% for user in helpers %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <a href="{% url 'helper_opinions' user.id %}">{{ user.username }}</a>
+          <span class="badge bg-success">{{ user.average_rating|floatformat:2 }}/5</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No helpers yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

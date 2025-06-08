@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+  <h3 class="mb-4">Opinions about {{ helper.username }}</h3>
+
+  {% if opinions %}
+    {% for opinion in opinions %}
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Rating:
+            {% if opinion.rating > 0 %}
+              {{ opinion.rating }} ★
+            {% else %}
+              No rating
+            {% endif %}
+          </h5>
+          <p class="card-text">{{ opinion.description }}</p>
+          <p class="card-text"><small class="text-muted">By {{ opinion.author.username }} on {{ opinion.created_at|date:"Y-m-d H:i" }}</small></p>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="alert alert-info">No opinions yet for this helper.</div>
+  {% endif %}
+
+  <a href="{% url 'home' %}" class="btn btn-outline-primary mt-3">← Back to Home</a>
+{% endblock %}

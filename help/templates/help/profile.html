@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow-sm p-4">
+        <h3 class="mb-4 text-primary">My Profile</h3>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Phone:</strong> {{ user.profile.phone }}</p>
+
+        <div class="d-flex flex-column gap-2 mt-3">
+          <a href="{% url 'my_requests' %}" class="btn btn-outline-secondary">My Requests</a>
+          <a href="{% url 'my_opinions' %}" class="btn btn-outline-primary">View My Opinions</a>
+        </div>
+
+        <button class="btn btn-primary mt-3" onclick="document.getElementById('edit-form').classList.toggle('d-none')">
+          Edit Profile
+        </button>
+
+        <form method="post" novalidate class="mt-4 d-none" id="edit-form">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}">
+          </div>
+          <div class="mb-3">
+            <label for="phone">Phone</label>
+            <input type="text" id="phone" name="phone" class="form-control" value="{{ user.profile.phone }}">
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-success">Save Changes</button>
+          </div>
+        </form>
+
+        {% if request.user != user %}
+          <div class="text-center mt-4">
+            <a href="{% url 'give_opinion' user.id %}" class="btn btn-success">
+              Leave Opinion about {{ user.username }}
+            </a>
+          </div>
+        {% endif %}
+
+        <hr class="my-4">
+        <h4 class="text-primary">Received Opinions</h4>
+
+        {% with opinions_received as received_opinions %}
+          {% if received_opinions %}
+            {% for op in received_opinions %}
+              <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                  <p><strong>From:</strong> {{ op.author.username }}</p>
+                  <p><strong>Rating:</strong> {{ op.rating }}/5</p>
+                  <p>{{ op.description }}</p>
+                  <p class="text-muted">Posted on {{ op.created_at|date:"Y-m-d H:i" }}</p>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="alert alert-info">You haven’t received any opinions yet.</div>
+          {% endif %}
+        {% endwith %}
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

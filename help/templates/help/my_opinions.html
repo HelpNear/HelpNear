@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+  <h3 class="mb-4">My Opinions</h3>
+
+  {% if opinions %}
+    {% for opinion in opinions %}
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">To: {{ opinion.helper.username }}</h5>
+          <p><strong>Rating:</strong> {{ opinion.rating }}/5</p>
+          <p>{{ opinion.description }}</p>
+          <p class="text-muted">Posted on {{ opinion.created_at|date:"Y-m-d H:i" }}</p>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="alert alert-info">You haven’t left any opinions yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

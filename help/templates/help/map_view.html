@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4 text-primary">Help Requests on Map</h2>
+  <div id="map" style="height: 500px;" class="rounded shadow-sm border"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function initMap() {
+    const map = new google.maps.Map(document.getElementById("map"), {
+      zoom: 6,
+      center: { lat: 52.0, lng: 19.0 }, // центр Польщі
+    });
+
+    const requests = {{ help_requests_json|safe }};
+    requests.forEach(req => {
+      const marker = new google.maps.Marker({
+        position: { lat: req.latitude, lng: req.longitude },
+        map: map,
+        title: req.title
+      });
+
+      const infowindow = new google.maps.InfoWindow({
+        content: `<strong>${req.title}</strong><br><a href="/request/${req.id}/">View</a>`
+      });
+
+      marker.addListener("click", () => {
+        infowindow.open(map, marker);
+      });
+    });
+  }
+  window.initMap = initMap;
+</script>
+<script async defer
+  src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap">
+</script>
+{% endblock %}

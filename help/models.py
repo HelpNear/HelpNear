@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.db.models import Avg
 
 class HelpRequest(models.Model):
     CATEGORY_CHOICES = [
@@ -14,7 +17,9 @@ class HelpRequest(models.Model):
     description = models.TextField()
     detailed_expectation = models.TextField(blank=True, null=True)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES)
-    location = models.CharField(max_length=200)
+    address = models.CharField(max_length=255, default='Unknown address')
+    latitude = models.FloatField(default=0.0)
+    longitude = models.FloatField(default=0.0)
     email = models.EmailField(blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     is_open = models.BooleanField(default=True)
@@ -29,8 +34,37 @@ class HelpResponse(models.Model):
     responder = models.ForeignKey(User, on_delete=models.CASCADE)
     message = models.TextField()
     rating = models.PositiveSmallIntegerField(null=True, blank=True)
+    feedback = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Response from {self.responder.username} on {self.request.title}"
 
+# New profile model for phone number
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone = models.CharField(max_length=20, blank=True)
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
+
+User.add_to_class('average_rating', property(lambda u: 
+    HelpResponse.objects.filter(responder=u, rating__isnull=False).aggregate(avg=Avg('rating'))['avg'] or 0))
+class Opinion(models.Model):
+    helper = models.ForeignKey(User, on_delete=models.CASCADE, related_name='opinions_received')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='opinions_given')
+    rating = models.PositiveIntegerField()
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Opinion about {self.helper.username} by {self.author.username}"
+
+    def display_rating(self):
+        return self.rating if self.rating > 0 else "No rating"

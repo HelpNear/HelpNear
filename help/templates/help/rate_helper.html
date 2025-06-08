@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-sm p-4">
+      <h4 class="text-primary text-center mb-4">Rate Helper</h4>
+      <p class="text-center">You're rating <strong>{{ response.responder.username }}</strong></p>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="rating" class="form-label">Select Rating (1–5):</label>
+          <select name="rating" id="rating" class="form-select" required>
+            <option value="" disabled selected>Choose a rating</option>
+            <option value="1">1 - Poor</option>
+            <option value="2">2 - Fair</option>
+            <option value="3">3 - Good</option>
+            <option value="4">4 - Very Good</option>
+            <option value="5">5 - Excellent</option>
+          </select>
+        </div>
+
+        <div class="d-grid">
+          <button type="submit" class="btn btn-success">Submit Rating</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

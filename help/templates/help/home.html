@@ -2,49 +2,42 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<!-- Hero Section with Project Idea -->
 <div class="p-5 mb-4 bg-primary bg-opacity-10 rounded-3 shadow-sm">
   <div class="container py-3">
     <h1 class="display-5 fw-bold text-primary">Welcome to HelpNear 🤝</h1>
-    <p class="col-md-10 fs-5">
-      HelpNear is a community-driven platform that connects people in need with neighbors who want to help.
-      Whether you need assistance with food delivery, medicine, house tasks or something else — you're not alone.
-      Post your request or respond to others and make your neighborhood stronger together.
-    </p>
+    <p class="fs-5">A place where neighbors help neighbors. Browse or offer help today.</p>
     <a href="{% url 'create_request' %}" class="btn btn-success btn-lg mt-2">
       <i class="bi bi-plus-circle"></i> Create Help Request
     </a>
   </div>
 </div>
 
-<!-- Filter Section -->
-<form method="get" class="row mb-4 g-2">
+<!-- Filter by Category -->
+<form method="get" class="row g-2 mb-4">
   <div class="col-md-6">
-    <input type="text" name="category" class="form-control" placeholder="Search Category" value="{{ category_query }}">
-  </div>
-  <div class="col-md-4">
-    <select name="category" class="form-select" onchange="this.form.submit()">
+    <select name="category" id="category" class="form-select select2" onchange="this.form.submit()">
       <option value="">All Categories</option>
-      <option value="food" {% if selected_category == 'food' %}selected{% endif %}>Food</option>
-      <option value="medicine" {% if selected_category == 'medicine' %}selected{% endif %}>Medicine</option>
+      <option value="food" {% if selected_category == 'food' %}selected{% endif %}>Food Delivery</option>
+      <option value="medicine" {% if selected_category == 'medicine' %}selected{% endif %}>Buy Medicine</option>
       <option value="house" {% if selected_category == 'house' %}selected{% endif %}>House Help</option>
       <option value="other" {% if selected_category == 'other' %}selected{% endif %}>Other</option>
     </select>
   </div>
   <div class="col-md-2">
-    <button class="btn btn-outline-primary w-100" type="submit">Filter</button>
+    <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
   </div>
 </form>
 
-<!-- Help Requests List -->
+<!-- Help Requests Grid -->
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
   {% for req in help_requests %}
   <div class="col">
-    <div class="card h-100 shadow-sm border-0">
+    <div class="card h-100 border-0 shadow-sm">
       <div class="card-body">
         <h5 class="card-title text-primary">{{ req.title }}</h5>
         <p class="card-text">
           <strong>Category:</strong> {{ req.get_category_display }}<br>
+          <strong>Posted:</strong> {{ req.created_at|date:"M d, Y H:i" }}<br>
           <strong>Status:</strong>
           {% if req.is_open %}
             <span class="badge bg-success">Open</span>
@@ -53,7 +46,7 @@
           {% endif %}
         </p>
       </div>
-      <div class="card-footer bg-transparent border-top-0">
+      <div class="card-footer bg-white border-top-0">
         <a href="{% url 'request_detail' req.id %}" class="btn btn-outline-primary w-100">
           View / Help
         </a>
@@ -61,10 +54,26 @@
     </div>
   </div>
   {% empty %}
-  <div class="col-12 text-center">
-    <div class="alert alert-info">No help requests found.</div>
+  <div class="col-12">
+    <div class="alert alert-warning text-center">No help requests found.</div>
   </div>
   {% endfor %}
 </div>
+{% endblock %}
 
+{% block extra_js %}
+  {{ block.super }}
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+  <script>
+    $(document).ready(function () {
+      $('.select2').select2({
+        placeholder: "Select a category",
+        allowClear: true,
+        width: '100%'
+      });
+    });
+  </script>
 {% endblock %}
